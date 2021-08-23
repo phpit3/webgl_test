@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="assets/css/reset.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <title>TEST</title>
+  </head>
+  <body>
+    <div class="webgl-wrapper">
+      <div class="aspect"></div>
+      <div class="webgl-content">
+        <div id="unityContainer">
+          <canvas id="unity-canvas" style="background: #231F20"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="info">
+      <p>unity webgl responsive</p>
+      <p>press F or <a href="#" onclick="myGameInstance.SetFullscreen(1)">click here</a> to toggle fullscreen</p>
+    </div>
+
+    <div class="centered">
+      <h2>Message from Unity</h2>
+    
+      <p id="lblMessage">...</p>
+
+      <button onclick="sendMessageToUnity()">Send</button>
+    </div>
+
+    <script src="MyLoader.js"></script>
+    <script>
+      createUnityInstance(document.querySelector("#unity-canvas"), {
+        dataUrl: "Build/202110.data",
+        frameworkUrl: "Build/202110.framework.js",
+        codeUrl: "Build/202110.wasm",
+        memoryUrl: "Build/",
+        symbolsUrl: "Build/",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "DefaultCompany",
+        productName: "TEST",
+        productVersion: "1.0",
+      }).then((unityInstance) => {
+        myGameInstance = unityInstance;
+      });
+    </script>
+
+    <!-- check for F key press to toggle full screen -->
+    <script>
+      var isFullscreen = false;
+
+      document.addEventListener('keydown', function(event) {
+          if (event.which === 70) {
+              if (!isFullscreen) {
+                myGameInstance.SetFullscreen(1);
+              } else {
+                myGameInstance.SetFullscreen(0);
+              }
+              isFullscreen = !isFullscreen;
+          }
+      });
+    </script>
+
+    <script>
+      var query = window.location.search.substring(1);
+      console.log(query);
+
+      // Function which receives a message from Unity
+      function receiveMessageFromUnity(txt) {
+        // Get element to assign the message
+        const lblMessage = document.getElementById("lblMessage");
+
+        // Assign received from Unity message
+        lblMessage.innerText = txt;
+
+        parent.postMessage({ mess: txt, key: 'token_logined' }, "*");
+      }
+
+      // Function which sends the message to Unity
+      function sendMessageToUnity() {
+        const message = 'token_cookie';
+
+        // Send message to the Unity scene
+        // Params: "Target object in the scene", "Function name", "Parameters"
+        myGameInstance.SendMessage(
+            "[Bridge]",
+            "ReceiveMessageFromPage",
+            message
+        );
+      }
+    </script>
+
+    <h3>Example made by</h3>
+    <p><a href="https://abc.com">abc - Dev Blog</a></p>
+  </body>
+</html>
